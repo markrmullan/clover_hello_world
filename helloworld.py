@@ -16,7 +16,7 @@ from google.appengine.ext import db
 from google.appengine.ext.webapp import template
 
 access_token_str = '0'
-merchant_id = 'ZXWVDF5S051T2'
+# merchant_id = 'ZXWVDF5S051T2'
 
 class Greeting(db.Model):
     # Models an individual Guestbook entry with an author, content and date.
@@ -33,7 +33,6 @@ class MainPage(webapp2.RequestHandler):
         code = self.request.get('code')
         if code:
             global access_token_str
-            global merchant_id
             print "have a code!"
 
             response = urllib2.urlopen("https://www.clover.com/oauth/token?client_id=E0SVKZCX95KXE&client_secret=daecf720-c7f8-0684-1e1d-23d926ba2e9e&code=" + code)
@@ -42,14 +41,19 @@ class MainPage(webapp2.RequestHandler):
             print "ACCESS TOKEN IS:", access_token_str
             response.close()
 
-            request = urllib2.Request("https://api.clover.com/v3/merchants/ZXWVDF5S051T2/orders", None, {"Authorization": "Bearer cce6bda8-4844-c126-b956-b0ceedd63519"})
+            request = urllib2.Request("https://api.clover.com/v3/merchants/ZXWVDF5S051T2/", None, {"Authorization": "Bearer cce6bda8-4844-c126-b956-b0ceedd63519"})
             rest_api_response = urllib2.urlopen(request)
             rest_api_html = rest_api_response.read()
+            rest_api_response.close()
+            ############################################################
+            ### OBJECT TO USE FOR PARSING, AUTOCOMPLETING FORMS, ETC ###
+            ############################################################
+
             print "TEST REST API STRING IS", rest_api_html
 
             self.redirect('http://localhost:8080/callback')
         else:
-            print "no code here"
+            # No code, redirect to Clover OAuth
             self.redirect('http://www.clover.com/oauth/authorize?client_id=E0SVKZCX95KXE&redirect_uri=http://localhost:8080/callback')
 
 class Guestbook(webapp2.RequestHandler):
