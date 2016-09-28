@@ -1,0 +1,12 @@
+application: helloworld-144719
+version: 1
+runtime: python27
+api_version: 1
+threadsafe: true
+
+handlers:
+- url: /stylesheets
+  static_dir: stylesheets
+
+- url: /.*
+  script: helloworld.app
