@@ -42,7 +42,8 @@ class MainPage(webapp2.RequestHandler):
             print "ACCESS TOKEN IS:", access_token_str
             response.close()
 
-            rest_api_response = urllib2.urlopen("https://api.clover.com/v3/merchants/ZXWVDF5S051T2/orders?access_token=cce6bda8-4844-c126-b956-b0ceedd63519")
+            request = urllib2.Request("https://api.clover.com/v3/merchants/ZXWVDF5S051T2/orders", None, {"Authorization": "Bearer cce6bda8-4844-c126-b956-b0ceedd63519"})
+            rest_api_response = urllib2.urlopen(request)
             rest_api_html = rest_api_response.read()
             print "TEST REST API STRING IS", rest_api_html
 
