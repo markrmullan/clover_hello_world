@@ -48,7 +48,6 @@ class Guestbook(webapp2.RequestHandler):
 
 class Callback(webapp2.RequestHandler):
     def get(self):
-        self.response.out.write("oauth callback received")
         print "oauth callback printing!!!!"
         print "oauth callback printing!!!!"
         print "oauth callback printing!!!!"
