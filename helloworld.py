@@ -26,13 +26,16 @@ def guestbook_key(guestbook_name=None):
 class MainPage(webapp2.RequestHandler):
     def get(self):
         code = self.request.get('code')
+        access_token = self.request.get('access_token')
         if code:
             print "have a code!"
             print "this is the code:", code
+            print "access token is:", access_token
+
             self.redirect('http://localhost:8080/callback')
         else:
             print "no code here"
-            self.redirect('https://www.clover.com/oauth/authorize?client_id=E0SVKZCX95KXE&redirect_uri=http://localhost:8080/')
+            self.redirect('http://www.clover.com/oauth/authorize?client_id=E0SVKZCX95KXE&redirect_uri=http://localhost:8080/callback')
 
 class Guestbook(webapp2.RequestHandler):
     def post(self):
@@ -49,13 +52,9 @@ class Guestbook(webapp2.RequestHandler):
 class Callback(webapp2.RequestHandler):
     def get(self):
         print "oauth callback printing!!!!"
-        print "oauth callback printing!!!!"
-        print "oauth callback printing!!!!"
-        print "oauth callback printing!!!!"
-        print "oauth callback printing!!!!"
-        print "oauth callback printing!!!!"
-        # code = self.request.get('code')
-        # self.redirect('http://localhost:8080?code=' + code)
+
+        # access_token = self.request.get('access_token')
+        # print "access token is:", access_token
 
         guestbook_name=self.request.get('guestbook_name')
         greetings_query = Greeting.all().ancestor(
