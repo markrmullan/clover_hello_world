@@ -6,12 +6,17 @@ import wsgiref.handlers
 import webapp2
 import pdb
 import logging
+import urllib2
+import json
 
 from webapp2 import WSGIApplication, Route
 
 from google.appengine.api import users
 from google.appengine.ext import db
 from google.appengine.ext.webapp import template
+
+access_token_str = '0'
+merchant_id = 'ZXWVDF5S051T2'
 
 class Greeting(db.Model):
     # Models an individual Guestbook entry with an author, content and date.
@@ -26,11 +31,20 @@ def guestbook_key(guestbook_name=None):
 class MainPage(webapp2.RequestHandler):
     def get(self):
         code = self.request.get('code')
-        access_token = self.request.get('access_token')
         if code:
+            global access_token_str
+            global merchant_id
             print "have a code!"
-            print "this is the code:", code
-            print "access token is:", access_token
+
+            response = urllib2.urlopen("https://www.clover.com/oauth/token?client_id=E0SVKZCX95KXE&client_secret=daecf720-c7f8-0684-1e1d-23d926ba2e9e&code=" + code)
+            html = response.read()
+            access_token_str = str(json.loads(html)[u'access_token'])
+            print "ACCESS TOKEN IS:", access_token_str
+            response.close()
+
+            rest_api_response = urllib2.urlopen("https://api.clover.com/v3/merchants/ZXWVDF5S051T2/orders?access_token=cce6bda8-4844-c126-b956-b0ceedd63519")
+            rest_api_html = rest_api_response.read()
+            print "TEST REST API STRING IS", rest_api_html
 
             self.redirect('http://localhost:8080/callback')
         else:
@@ -76,6 +90,13 @@ class Callback(webapp2.RequestHandler):
 
         path = os.path.join(os.path.dirname(__file__), 'index.html')
         self.response.out.write(template.render(path, template_values))
+
+        # response = requests.get("https://www.clover.com/v3/merchants/ZXWVDF5S051T2/employees/3A7A0Y9BZ7MEA")
+        # owner = response.owner
+        # self.response.out.write("this page is owned by", owner)
+
+        # owner = urllib2.urlopen(https://www.clover.com/v3/merchants/ZXWVDF5S051T2/employees/3A7A0Y9BZ7MEA).read()
+        # self.response.out.write("this page is owned by", owner)
 
 
 # ROUTES
