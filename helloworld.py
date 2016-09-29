@@ -23,6 +23,7 @@ from secret_settings import *
 access_token_str = ''
 # merchant_id = 'ZXWVDF5S051T2'
 # app_id = 'E0SVKZCX95KXE' also aliased as cl\ient_id that is a query param to
+# API TOKEN cce6bda8-4844-c126-b956-b0ceedd63519
 # https://www.clover.com/oauth/authorize
 
 
@@ -47,18 +48,18 @@ class MainPage(webapp2.RequestHandler):
             access_token_str = str(json.loads(html)[u'access_token'])
             response.close()
 
-            request = urllib2.Request("https://api.clover.com/v3/merchants/ZXWVDF5S051T2/", None, {"Authorization": "Bearer cce6bda8-4844-c126-b956-b0ceedd63519"})
+            request = urllib2.Request("https://api.clover.com/v3/merchants/ZXWVDF5S051T2/", None, {"Authorization": "Bearer " + access_token_str})
             rest_api_response = urllib2.urlopen(request)
             rest_api_html = rest_api_response.read()
             rest_api_json = json.loads(rest_api_html)
             rest_api_response.close()
 
-            address_request = urllib2.Request(rest_api_json[u'address']['href'], None, {"Authorization": "Bearer cce6bda8-4844-c126-b956-b0ceedd63519"})
+            address_request = urllib2.Request(rest_api_json[u'address']['href'], None, {"Authorization": "Bearer " + access_token_str})
             address_file = urllib2.urlopen(address_request)
             address = address_file.read()
             address_file.close()
 
-            email_request = urllib2.Request(rest_api_json[u'owner']['href'], None, {"Authorization": "Bearer cce6bda8-4844-c126-b956-b0ceedd63519"})
+            email_request = urllib2.Request(rest_api_json[u'owner']['href'], None, {"Authorization": "Bearer " + access_token_str})
             email_file = urllib2.urlopen(email_request)
             email = email_file.read()
             email_file.close()
@@ -135,14 +136,18 @@ class NewUserForm(webapp2.RequestHandler):
             print "something went wrong!"
             # TODO: error handling here
 
+class NewOrderForm(webapp2.RequestHandler):
+    def get(self):
+        path = os.path.join(os.path.dirname(__file__), 'new_order.html')
+        self.response.out.write(template.render(path, template_values))
+
 class CreateUser(webapp2.RequestHandler):
     def post(self):
         # simulate loading screen, in live app, would actually create a User
         # and store in db.
-        self.response.out.write("Creating user in db, loading...")
         print "Creating user in db, loading..."
         time.sleep(2)
-        self.redirect("http://localhost:8080/guestbook/index")
+        self.redirect("http://localhost:8080/orders/new")
 
 # ROUTES
 routes = [
@@ -150,7 +155,8 @@ routes = [
     Route (r'/sign', handler = Guestbook),
     Route (r'/guestbook/index', handler = GuestbookIndex),
     Route (r'/users/new', handler = NewUserForm),
-    Route (r'/users/create', handler = CreateUser)
+    Route (r'/users/create', handler = CreateUser),
+    Route (r'/orders/new', handler = NewOrderForm)
 ]
 
 app = webapp2.WSGIApplication(routes, debug=True)
