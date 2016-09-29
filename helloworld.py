@@ -127,9 +127,12 @@ class CreateUser(webapp2.RequestHandler):
             email = eval(data['email'])
 
             template_values = {
+                "email": email.get("email"),
                 "address1": address.get('address1'),
                 "address2": address.get("address2"),
-                "email": email.get("email")
+                "city": address.get("city"),
+                "state": address.get("state"),
+                "zip": address.get("zip")
             }
 
             path = os.path.join(os.path.dirname(__file__), 'sign_up.html')
@@ -137,7 +140,7 @@ class CreateUser(webapp2.RequestHandler):
         else:
             print "something went wrong!"
             # TODO: error handling here
-            
+
 # ROUTES
 routes = [
     Route (r'/', handler = MainPage),
