@@ -116,33 +116,15 @@ class Callback(webapp2.RequestHandler):
 
 class CreateUser(webapp2.RequestHandler):
     def get(self):
-
-        # data = self.request.get('data').replace("'", '"')
         data = self.request.get('data').replace('false', "False").replace('true', "True")
         # clover server responds back with 'true' or 'false' strings
         # python will throw an error for uncapitalized booleans, so we convert
-
-        data = eval(data)
-
-        address = eval(data['address'])
-        email = eval(data['email'])
-        # email = eval(data.get('email'))
         print "data object is:", data
-        # print "email object is:", email
 
-        # print "DATA OBJECT RETURNED IS:", data
-        # data = json.loads(data)
-        # print data[0]
-        # data = json.loads(data.replace("'", '"'))
-
-        # print data[0]
-        # print data.address
-
-
-
-        if data:
-            # json_data = json.loads(data)
-
+        if len(data) > 0:
+            data = eval(data)
+            address = eval(data['address'])
+            email = eval(data['email'])
 
             template_values = {
                 "address1": address.get('address1'),
@@ -152,7 +134,10 @@ class CreateUser(webapp2.RequestHandler):
 
             path = os.path.join(os.path.dirname(__file__), 'sign_up.html')
             self.response.out.write(template.render(path, template_values))
-
+        else:
+            print "something went wrong!"
+            # TODO: error handling here
+            
 # ROUTES
 routes = [
     Route (r'/', handler = MainPage),
