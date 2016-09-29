@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Sign up for HelloWorld</title>
+  </head>
+  <body>
+    <form class="/users/new" method="post">
+      <label for="user[email]">Email:</label><br>
+      <input type="text" name="user[email]" placeholder="example@example.com" value="{{email}}"></input><br><br>
+
+      <label for="user[password]">Password:</label><br>
+      <input type="password" name="user[password]" placeholder="password"></input><br><br>
+
+      <label for="user[address]">Address 1:</label><br>
+      <input type="text" name="user[address1]" value="{{address1}}" placeholder="Address 1"></input><br><br>
+
+      <label for="user[address]">Address 2:</label><br>
+      <input type="text" name="user[address2]" value="{{address2}}" placeholder="Address 2"></input><br><br>
+
+      <label for="user[city]">City:</label><br>
+      <input type="text" name="user[city]" value="{{city}}" placeholder="City"></input><br><br>
+
+      <label for="user[state]">State:</label><br>
+      <input type="text" name="user[state]" value="{{state}}" placeholder="State"></input><br><br>
+
+      <label for="user[zipcode]">Zip Code:</label><br>
+      <input type="text" name="user[zipcode]" value="{{zipcode}}" placeholder="Zip"></input><br><br>
+
+      <input type="submit" name="name" value="Create Account">
+    </form>
+  </body>
+</html>
