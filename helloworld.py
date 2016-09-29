@@ -8,6 +8,8 @@ import pdb
 import logging
 import urllib2
 from urlparse import urlparse
+import time
+from threading import Timer
 # from urllib import urlparse
 import urlparse
 import json
@@ -41,12 +43,10 @@ class MainPage(webapp2.RequestHandler):
         code = self.request.get('code')
         if code:
             global access_token_str
-            print "have a code!"
 
             response = urllib2.urlopen("https://www.clover.com/oauth/token?client_id=E0SVKZCX95KXE&client_secret=" + CLIENT_SECRET + "&code=" + code)
             html = response.read()
             access_token_str = str(json.loads(html)[u'access_token'])
-            print "ACCESS TOKEN IS:", access_token_str
             response.close()
 
             request = urllib2.Request("https://api.clover.com/v3/merchants/ZXWVDF5S051T2/", None, {"Authorization": "Bearer cce6bda8-4844-c126-b956-b0ceedd63519"})
@@ -89,10 +89,8 @@ class Guestbook(webapp2.RequestHandler):
         greeting.put()
         self.redirect('/?' + urllib.urlencode({'guestbook_name': guestbook_name}))
 
-class Callback(webapp2.RequestHandler):
+class GuestbookIndex(webapp2.RequestHandler):
     def get(self):
-        print "oauth callback printing!!!!"
-
         guestbook_name=self.request.get('guestbook_name')
         greetings_query = Greeting.all().ancestor(
             guestbook_key(guestbook_name)).order('-date')
@@ -114,13 +112,11 @@ class Callback(webapp2.RequestHandler):
         path = os.path.join(os.path.dirname(__file__), 'index.html')
         self.response.out.write(template.render(path, template_values))
 
-class CreateUser(webapp2.RequestHandler):
+class NewUserForm(webapp2.RequestHandler):
     def get(self):
         data = self.request.get('data').replace('false', "False").replace('true', "True")
         # clover server responds back with 'true' or 'false' strings
         # python will throw an error for uncapitalized booleans, so we convert
-        print "data object is:", data
-
         if len(data) > 0:
             data = eval(data)
             address = eval(data['address'])
@@ -141,12 +137,24 @@ class CreateUser(webapp2.RequestHandler):
             print "something went wrong!"
             # TODO: error handling here
 
+class CreateUser(webapp2.RequestHandler):
+    def post(self):
+        # simulate loading screen, in live app, would actually create a User
+        # and store in db.
+        self.response.out.write("Creating user in db, loading...")
+        print "Creating user in db, loading..."
+        time.sleep(2)
+        # r = Timer(3.0, redirect_to_guestbook, (self))
+        # r.start()
+        self.redirect("http://localhost:8080/guestbook/index")
+
 # ROUTES
 routes = [
     Route (r'/', handler = MainPage),
     Route (r'/sign', handler = Guestbook),
-    Route (r'/callback', handler = Callback),
-    Route (r'/users/new', handler = CreateUser)
+    Route (r'/guestbook/index', handler = GuestbookIndex),
+    Route (r'/users/new', handler = NewUserForm),
+    Route (r'/users/create', handler = CreateUser)
 ]
 
 app = webapp2.WSGIApplication(routes, debug=True)
