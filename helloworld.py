@@ -118,7 +118,10 @@ class CreateUser(webapp2.RequestHandler):
     def get(self):
 
         # data = self.request.get('data').replace("'", '"')
-        data = self.request.get('data').replace('false', "False")
+        data = self.request.get('data').replace('false', "False").replace('true', "True")
+        # clover server responds back with 'true' or 'false' strings
+        # python will throw an error for uncapitalized booleans, so we convert
+
         data = eval(data)
 
         address = eval(data['address'])
