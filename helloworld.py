@@ -9,8 +9,6 @@ import logging
 import urllib2
 from urlparse import urlparse
 import time
-from threading import Timer
-# from urllib import urlparse
 import urlparse
 import json
 
@@ -22,9 +20,9 @@ from google.appengine.ext.webapp import template
 
 from secret_settings import *
 
-access_token_str = '0'
+access_token_str = ''
 # merchant_id = 'ZXWVDF5S051T2'
-# app_id = 'E0SVKZCX95KXE' also aliased as client_id that is a query param to
+# app_id = 'E0SVKZCX95KXE' also aliased as cl\ient_id that is a query param to
 # https://www.clover.com/oauth/authorize
 
 
@@ -144,8 +142,6 @@ class CreateUser(webapp2.RequestHandler):
         self.response.out.write("Creating user in db, loading...")
         print "Creating user in db, loading..."
         time.sleep(2)
-        # r = Timer(3.0, redirect_to_guestbook, (self))
-        # r.start()
         self.redirect("http://localhost:8080/guestbook/index")
 
 # ROUTES
@@ -156,7 +152,6 @@ routes = [
     Route (r'/users/new', handler = NewUserForm),
     Route (r'/users/create', handler = CreateUser)
 ]
-#test comment
 
 app = webapp2.WSGIApplication(routes, debug=True)
 
