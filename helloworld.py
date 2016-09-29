@@ -15,8 +15,13 @@ from google.appengine.api import users
 from google.appengine.ext import db
 from google.appengine.ext.webapp import template
 
+from secret_settings import *
+
 access_token_str = '0'
 # merchant_id = 'ZXWVDF5S051T2'
+# app_id = 'E0SVKZCX95KXE' also aliased as client_id that is a query param to
+# https://www.clover.com/oauth/authorize
+
 
 class Greeting(db.Model):
     # Models an individual Guestbook entry with an author, content and date.
@@ -35,7 +40,7 @@ class MainPage(webapp2.RequestHandler):
             global access_token_str
             print "have a code!"
 
-            response = urllib2.urlopen("https://www.clover.com/oauth/token?client_id=E0SVKZCX95KXE&client_secret=daecf720-c7f8-0684-1e1d-23d926ba2e9e&code=" + code)
+            response = urllib2.urlopen("https://www.clover.com/oauth/token?client_id=E0SVKZCX95KXE&client_secret=" + CLIENT_SECRET + "&code=" + code)
             html = response.read()
             access_token_str = str(json.loads(html)[u'access_token'])
             print "ACCESS TOKEN IS:", access_token_str
@@ -72,9 +77,6 @@ class Callback(webapp2.RequestHandler):
     def get(self):
         print "oauth callback printing!!!!"
 
-        # access_token = self.request.get('access_token')
-        # print "access token is:", access_token
-
         guestbook_name=self.request.get('guestbook_name')
         greetings_query = Greeting.all().ancestor(
             guestbook_key(guestbook_name)).order('-date')
@@ -95,14 +97,6 @@ class Callback(webapp2.RequestHandler):
 
         path = os.path.join(os.path.dirname(__file__), 'index.html')
         self.response.out.write(template.render(path, template_values))
-
-        # response = requests.get("https://www.clover.com/v3/merchants/ZXWVDF5S051T2/employees/3A7A0Y9BZ7MEA")
-        # owner = response.owner
-        # self.response.out.write("this page is owned by", owner)
-
-        # owner = urllib2.urlopen(https://www.clover.com/v3/merchants/ZXWVDF5S051T2/employees/3A7A0Y9BZ7MEA).read()
-        # self.response.out.write("this page is owned by", owner)
-
 
 # ROUTES
 routes = [
