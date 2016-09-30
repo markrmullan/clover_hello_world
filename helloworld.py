@@ -168,16 +168,16 @@ class CreateUser(webapp2.RequestHandler):
 
 class CreateOrder(webapp2.RequestHandler):
     def post(self):
-        params = urlparse.parse_qs(self.request.body)
+        form_data = urlparse.parse_qs(self.request.body)
         global access_token_str
         global global_code
 
         url = "https://www.clover.com/v3/merchants/ZXWVDF5S051T2/orders"
         headers = {"Authorization": "Bearer " + access_token_str, 'Content-Type': 'application/json'}
 
-        form_data = json.dumps({
-            "note": params["note"][0],
-            "total": params["total"][0],
+        post_data = json.dumps({
+            "note": form_data["note"][0],
+            "total": form_data["total"][0],
             "client_id": "E0SVKZCX95KXE",
             "client_secret": CLIENT_SECRET,
             "code": global_code
@@ -186,12 +186,8 @@ class CreateOrder(webapp2.RequestHandler):
         result = urlfetch.fetch(
             url = url,
             method = urlfetch.POST,
-            payload = form_data,
+            payload = post_data,
             headers = headers)
-
-
-        print result.content
-        print result.content
 
         result = json.loads(result.content)
         template_values = {
@@ -199,7 +195,6 @@ class CreateOrder(webapp2.RequestHandler):
             'currency': result[u'currency'],
             'id': result[u'id'],
             'total': result[u'total']
-
         }
 
         path = os.path.join(os.path.dirname(__file__), 'order_created.html')
