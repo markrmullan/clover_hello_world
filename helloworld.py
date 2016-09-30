@@ -154,10 +154,8 @@ class NewUserForm(webapp2.RequestHandler):
 
 class NewOrderForm(webapp2.RequestHandler):
     def get(self):
-        template_values = {}
-
         path = os.path.join(os.path.dirname(__file__), 'new_order.html')
-        self.response.out.write(template.render(path, template_values))
+        self.response.out.write(template.render(path, {}))
 
 class CreateUser(webapp2.RequestHandler):
     def post(self):
@@ -174,30 +172,38 @@ class CreateOrder(webapp2.RequestHandler):
         global access_token_str
         global global_code
 
-        # response = urllib2.urlopen("https://www.clover.com/oauth/token?client_id=E0SVKZCX95KXE&client_secret=" + CLIENT_SECRET + "&code=" + global_code)
-        # html = response.read()
-        # access_token_str = str(json.loads(html)[u'access_token'])
-        # response.close()
+        url = "https://www.clover.com/v3/merchants/ZXWVDF5S051T2/orders"
+        headers = {"Authorization": "Bearer " + access_token_str, 'Content-Type': 'application/json'}
 
-        print access_token_str
-        print access_token_str
-        print access_token_str
-        print access_token_str
-        print access_token_str
-        print access_token_str
+        form_data = json.dumps({
+            "note": params["note"][0],
+            "total": params["total"][0],
+            "client_id": "E0SVKZCX95KXE",
+            "client_secret": CLIENT_SECRET,
+            "code": global_code
+        })
+
+        result = urlfetch.fetch(
+            url = url,
+            method = urlfetch.POST,
+            payload = form_data,
+            headers = headers)
 
 
-        # order_request = urllib2.Request('https://www.clover.com/v3/merchants/ZXWVDF5S051T2/orders',
-        #                                 json.loads(json.dumps({
-        #                                     "note": params["note"][0],
-        #                                     "total": params["total"][0],
-        #                                     "client_id": "E0SVKZCX95KXE",
-        #                                     "client_secret": CLIENT_SECRET,
-        #                                     "code": global_code
-        #                                 })),
-        #                                 {"Authorization": "Bearer " + access_token_str}
-        #                                 )
-        # order_response = urllib2.urlopen(order_request)
+        print result.content
+        print result.content
+
+        result = json.loads(result.content)
+        template_values = {
+            'note': result[u'note'],
+            'currency': result[u'currency'],
+            'id': result[u'id'],
+            'total': result[u'total']
+
+        }
+
+        path = os.path.join(os.path.dirname(__file__), 'order_created.html')
+        self.response.out.write(template.render(path, template_values))
 
 
 # ROUTES
