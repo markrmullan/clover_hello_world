@@ -80,9 +80,9 @@ class MainPage(webapp2.RequestHandler):
             )
             email = result.content
 
-            ############################################################
-            ### OBJECT TO USE FOR PARSING, AUTOCOMPLETING FORMS, ETC ###
-            ############################################################
+            #############################################################
+            ##### OBJECT TO USE FOR AUTOCOMPLETING SIGNUP FORM, ETC #####
+            #############################################################
             self.redirect('http://localhost:8080/users/new?' + urllib.urlencode({'data': {
                                                                                           'address': address,
                                                                                           'email': email
