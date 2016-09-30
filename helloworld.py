@@ -55,21 +55,30 @@ class MainPage(webapp2.RequestHandler):
             except:
                 logging.exception('Caught exception fetching url')
 
-            request = urllib2.Request("https://api.clover.com/v3/merchants/ZXWVDF5S051T2/", None, {"Authorization": "Bearer " + access_token_str})
-            rest_api_response = urllib2.urlopen(request)
-            rest_api_html = rest_api_response.read()
-            rest_api_json = json.loads(rest_api_html)
-            rest_api_response.close()
+            #retrieve merchant master info
+            url = "https://api.clover.com/v3/merchants/ZXWVDF5S051T2/"
+            headers = {"Authorization": "Bearer " + access_token_str}
+            result = urlfetch.fetch(
+                url = url,
+                headers = headers)
+            rest_api_json = json.loads(result.content)
 
-            address_request = urllib2.Request(rest_api_json[u'address']['href'], None, {"Authorization": "Bearer " + access_token_str})
-            address_file = urllib2.urlopen(address_request)
-            address = address_file.read()
-            address_file.close()
+            #retrieve merchant address
+            url = rest_api_json[u'address']['href']
+            headers = {"Authorization": "Bearer " + access_token_str}
+            result = urlfetch.fetch(
+                url = url,
+                headers = headers)
+            address = result.content
 
-            email_request = urllib2.Request(rest_api_json[u'owner']['href'], None, {"Authorization": "Bearer " + access_token_str})
-            email_file = urllib2.urlopen(email_request)
-            email = email_file.read()
-            email_file.close()
+            #retrieve merchant email
+            url = rest_api_json[u'owner']['href']
+            headers = {"Authorization": "Bearer " + access_token_str}
+            result = urlfetch.fetch(
+                url = url,
+                headers = headers
+            )
+            email = result.content
 
             ############################################################
             ### OBJECT TO USE FOR PARSING, AUTOCOMPLETING FORMS, ETC ###
