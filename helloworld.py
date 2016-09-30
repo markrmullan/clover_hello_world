@@ -90,7 +90,7 @@ class MainPage(webapp2.RequestHandler):
                                                                                   }))
         else:
             # No code, redirect to Clover OAuth
-            self.redirect('http://www.clover.com/oauth/authorize?client_id=E0SVKZCX95KXE&redirect_uri=http://localhost:8080')
+            self.redirect('http://www.clover.com/oauth/authorize?client_id=E0SVKZCX95KXE')
 
 class Guestbook(webapp2.RequestHandler):
     def post(self):
