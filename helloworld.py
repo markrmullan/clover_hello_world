@@ -54,7 +54,6 @@ class MainPage(webapp2.RequestHandler):
             url = "https://sandbox.dev.clover.com/oauth/token?client_id=" + client_id + "&client_secret=" + CLIENT_SECRET + "&code=" + code
             try:
                 result = urlfetch.fetch(url)
-                print result.content
                 if result.status_code == 200:
                     access_token_str = str(json.loads(result.content)[u'access_token'])
                 else:
@@ -210,7 +209,7 @@ class CreateInventoryItem(webapp2.RequestHandler):
             headers = headers)
 
         result = json.loads(result.content)
-        print result
+
         template_values = {
             'name': result[u'name'],
             'price': result[u'price'],
@@ -220,7 +219,6 @@ class CreateInventoryItem(webapp2.RequestHandler):
 
         path = os.path.join(os.path.dirname(__file__), 'item_created.html')
         self.response.out.write(template.render(path, template_values))
-
 
 class CreateOrder(webapp2.RequestHandler):
     def post(self):
@@ -239,9 +237,10 @@ class CreateOrder(webapp2.RequestHandler):
             "client_id": client_id,
             "client_secret": CLIENT_SECRET,
             "code": global_code,
-            "device": {
-                "id": "2f3ed019-4ebe-1521-e029-49e157c62e7f"
-            }
+            # "device": {
+            #     "id": "2f3ed019-4ebe-1521-e029-49e157c62e7f"
+            # },
+            "state": "open"
         })
 
         result = urlfetch.fetch(
