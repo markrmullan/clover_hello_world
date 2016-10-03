@@ -20,11 +20,13 @@ from google.appengine.api import urlfetch
 
 from secret_settings import *
 
-access_token_str = ''
-global_code = ''
-# merchant_id = 'ZXWVDF5S051T2'
-# app_id = 'E0SVKZCX95KXE' also aliased as cl\ient_id that is a query param to
-# API TOKEN cce6bda8-4844-c126-b956-b0ceedd63519
+access_token_str = None
+global_code = None
+client_id = None
+merchant_id = None
+# merchant_id = 'SJ925JDCKKTJJ'
+# app_id = '4WRDFC82ZJ4S6' also aliased as client_id that is a query param to
+# API TOKEN 3a440b6b-a76f-bdb3-f999-2a3d2c1a63ee
 # https://www.clover.com/oauth/authorize
 
 
@@ -42,12 +44,18 @@ class MainPage(webapp2.RequestHandler):
     def get(self):
         code = self.request.get('code')
         if code:
+            global client_id
+            global merchant_id
+            client_id = self.request.get('client_id')
+            merchant_id = self.request.get('merchant_id')
             global_code = code
+
             global access_token_str
 
-            url = "https://www.clover.com/oauth/token?client_id=E0SVKZCX95KXE&client_secret=" + CLIENT_SECRET + "&code=" + code
+            url = "https://sandbox.dev.clover.com/oauth/token?client_id=" + client_id + "&client_secret=" + CLIENT_SECRET + "&code=" + code
             try:
                 result = urlfetch.fetch(url)
+                print result.content
                 if result.status_code == 200:
                     access_token_str = str(json.loads(result.content)[u'access_token'])
                 else:
@@ -56,7 +64,7 @@ class MainPage(webapp2.RequestHandler):
                 logging.exception('Caught exception fetching url')
 
             #retrieve merchant master info
-            url = "https://api.clover.com/v3/merchants/ZXWVDF5S051T2/"
+            url = "https://sandbox.dev.clover.com/v3/merchants/" + merchant_id
             headers = {"Authorization": "Bearer " + access_token_str}
             result = urlfetch.fetch(
                 url = url,
@@ -89,8 +97,8 @@ class MainPage(webapp2.RequestHandler):
                                                                                           }
                                                                                   }))
         else:
-            # No code, redirect to Clover OAuth
-            self.redirect('http://www.clover.com/oauth/authorize?client_id=E0SVKZCX95KXE')
+            # No code yet, redirect to Clover OAuth so we can get one
+            self.redirect('https://sandbox.dev.clover.com/oauth/authorize')
 
 class Guestbook(webapp2.RequestHandler):
     def post(self):
@@ -166,19 +174,27 @@ class CreateUser(webapp2.RequestHandler):
         time.sleep(2)
         self.redirect("http://localhost:8080/orders/new")
 
+class RemoveOrderForm(webapp2.RequestHandler):
+    def get(self):
+        path = os.path.join(os.path.dirname(__file__), 'delete_order.html')
+        self.response.out.write(template.render(path, {}))
+
+
 class CreateOrder(webapp2.RequestHandler):
     def post(self):
-        form_data = urlparse.parse_qs(self.request.body)
+        global merchant_id
+        global client_id
         global access_token_str
         global global_code
+        form_data = urlparse.parse_qs(self.request.body)
 
-        url = "https://www.clover.com/v3/merchants/ZXWVDF5S051T2/orders"
+        url = "https://sandbox.dev.clover.com/v3/merchants/" + merchant_id + "/orders"
         headers = {"Authorization": "Bearer " + access_token_str, 'Content-Type': 'application/json'}
 
         post_data = json.dumps({
             "note": form_data["note"][0],
             "total": form_data["total"][0],
-            "client_id": "E0SVKZCX95KXE",
+            "client_id": client_id,
             "client_secret": CLIENT_SECRET,
             "code": global_code
         })
@@ -209,7 +225,8 @@ routes = [
     Route (r'/users/new', handler = NewUserForm),
     Route (r'/users/create', handler = CreateUser),
     Route (r'/orders/new', handler = NewOrderForm),
-    Route (r'/orders/create', handler = CreateOrder)
+    Route (r'/orders/create', handler = CreateOrder),
+    Route (r'/orders/remove', handler = RemoveOrderForm)
 ]
 
 app = webapp2.WSGIApplication(routes, debug=True)
