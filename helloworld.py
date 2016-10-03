@@ -29,7 +29,6 @@ merchant_id = None
 # API TOKEN 3a440b6b-a76f-bdb3-f999-2a3d2c1a63ee
 # https://www.clover.com/oauth/authorize
 
-
 class Greeting(db.Model):
     # Models an individual Guestbook entry with an author, content and date.
     author = db.UserProperty()
@@ -39,6 +38,11 @@ class Greeting(db.Model):
 def guestbook_key(guestbook_name=None):
     # Constructs a datastore key for a Guestbook entity with guestbook_name
     return db.Key.from_path('Guestbook', guestbook_name or 'default_guestbook')
+
+class Home(webapp2.RequestHandler):
+    def get(self):
+        path = os.path.join(os.path.dirname(__file__), 'home.html')
+        self.response.out.write(template.render(path, {}))
 
 class MainPage(webapp2.RequestHandler):
     def get(self):
@@ -181,7 +185,6 @@ class RemoveOrder(webapp2.RequestHandler):
         global merchant_id
         global access_token_str
 
-        # print self.request.body['id']
         order_id = urlparse.parse_qs(self.request.body)['id'][0]
         url = "https://sandbox.dev.clover.com/v3/merchants/" + merchant_id + "/orders/" + order_id
         headers = {"Authorization": "Bearer " + access_token_str, 'Content-Type': 'application/json'}
@@ -296,7 +299,8 @@ routes = [
     Route (r'/orders/create', handler = CreateOrder),
     Route (r'/orders/remove', handler = RemoveOrder),
     Route (r'/inventory/new', handler = NewInventoryForm),
-    Route (r'/inventory/create', handler = CreateInventoryItem)
+    Route (r'/inventory/create', handler = CreateInventoryItem),
+    Route (r'/home', handler = Home)
 ]
 
 app = webapp2.WSGIApplication(routes, debug=True)
