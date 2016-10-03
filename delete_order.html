@@ -4,11 +4,18 @@
     <meta charset="utf-8">
     <title>Delete an order</title>
 
-    <form action="index.html" method="delete">
-      <!-- create a form here to accept an order id, and then be able to make a DELETE request on that order -->
-    </form>
+
   </head>
   <body>
+    <h2>Delete an order</h2>
+
+    <form action="/orders/remove" method="post">
+      <label for="id">Enter an order_id that you'd like to delete:</label>
+      <input type="text" name="id" value="" placeholder="order_id"></input>
+
+      <input type="submit" value="Delete">
+    </form>
+
 
   </body>
 </html>

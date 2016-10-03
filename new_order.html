@@ -5,6 +5,10 @@
     <title>Create a new order</title>
   </head>
   <body>
+
+    {% if order_id %}
+      <h3>Successfully deleted {{ order_id }}</h3>
+    {% endif %}
     <h1>Create a new order</h1>
     <form action="/orders/create" method="post">
       <label for="note">Order note: (optional)</label><br>

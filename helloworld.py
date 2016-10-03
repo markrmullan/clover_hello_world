@@ -169,13 +169,38 @@ class CreateUser(webapp2.RequestHandler):
         # and store in db.
 
         print "Creating user in db, loading..."
-        time.sleep(2)
+        # time.sleep(2)
         self.redirect("http://localhost:8080/inventory/new")
 
-class RemoveOrderForm(webapp2.RequestHandler):
+class RemoveOrder(webapp2.RequestHandler):
     def get(self):
         path = os.path.join(os.path.dirname(__file__), 'delete_order.html')
         self.response.out.write(template.render(path, {}))
+
+    def post(self):
+        global merchant_id
+        global access_token_str
+
+        # print self.request.body['id']
+        order_id = urlparse.parse_qs(self.request.body)['id'][0]
+        url = "https://sandbox.dev.clover.com/v3/merchants/" + merchant_id + "/orders/" + order_id
+        headers = {"Authorization": "Bearer " + access_token_str, 'Content-Type': 'application/json'}
+
+        try:
+            result = urlfetch.fetch(
+                url = url,
+                method = urlfetch.DELETE,
+                headers = headers
+            )
+
+            template_values = {
+                "order_id": order_id
+            }
+
+            path = os.path.join(os.path.dirname(__file__), 'new_order.html')
+            self.response.out.write(template.render(path, template_values))
+        except:
+            logging.exception('error while deleting order')
 
 class NewInventoryForm(webapp2.RequestHandler):
     def get(self):
@@ -269,7 +294,7 @@ routes = [
     Route (r'/users/create', handler = CreateUser),
     Route (r'/orders/new', handler = NewOrderForm),
     Route (r'/orders/create', handler = CreateOrder),
-    Route (r'/orders/remove', handler = RemoveOrderForm),
+    Route (r'/orders/remove', handler = RemoveOrder),
     Route (r'/inventory/new', handler = NewInventoryForm),
     Route (r'/inventory/create', handler = CreateInventoryItem)
 ]
