@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Create a new inventory item</title>
+  </head>
+  <body>
+    <h1>Create a new inventory item</h1>
+
+    <form action="/inventory/create" method="post">
+      <label for="name">Product name: </label><br>
+      <input type="text" name="name" value="" placeholder="Product name"></input><br><br>
+
+      <label for="price">Price: (number of cents)</label><br>
+      <input type="text" name="price" value="" placeholder="Price"></input><br><br>
+
+      <label for="sku">SKU: (optional)</label><br>
+      <input type="text" name="sku" value="" placeholder="SKU #"></input><br><br>
+
+      <input type="submit" name="submit" value="Create item">
+    </form>
+
+  </body>
+</html>

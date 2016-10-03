@@ -46,11 +46,10 @@ class MainPage(webapp2.RequestHandler):
         if code:
             global client_id
             global merchant_id
+            global access_token_str
             client_id = self.request.get('client_id')
             merchant_id = self.request.get('merchant_id')
             global_code = code
-
-            global access_token_str
 
             url = "https://sandbox.dev.clover.com/oauth/token?client_id=" + client_id + "&client_secret=" + CLIENT_SECRET + "&code=" + code
             try:
@@ -172,12 +171,55 @@ class CreateUser(webapp2.RequestHandler):
 
         print "Creating user in db, loading..."
         time.sleep(2)
-        self.redirect("http://localhost:8080/orders/new")
+        self.redirect("http://localhost:8080/inventory/new")
 
 class RemoveOrderForm(webapp2.RequestHandler):
     def get(self):
         path = os.path.join(os.path.dirname(__file__), 'delete_order.html')
         self.response.out.write(template.render(path, {}))
+
+class NewInventoryForm(webapp2.RequestHandler):
+    def get(self):
+        path = os.path.join(os.path.dirname(__file__), 'new_inventory.html')
+        self.response.out.write(template.render(path, {}))
+
+class CreateInventoryItem(webapp2.RequestHandler):
+    def post(self):
+        global merchant_id
+        global client_id
+        global access_token_str
+        global global_code
+        form_data = urlparse.parse_qs(self.request.body)
+
+        url = "https://sandbox.dev.clover.com/v3/merchants/" + merchant_id + "/items"
+        headers = {"Authorization": "Bearer " + access_token_str, 'Content-Type': 'application/json'}
+
+        post_data = json.dumps({
+            "name": form_data["name"][0],
+            "price": form_data["price"][0],
+            "sku": form_data["sku"][0],
+            "client_id": client_id,
+            "client_secret": CLIENT_SECRET,
+            "code": global_code
+        })
+
+        result = urlfetch.fetch(
+            url = url,
+            method = urlfetch.POST,
+            payload = post_data,
+            headers = headers)
+
+        result = json.loads(result.content)
+        print result
+        template_values = {
+            'name': result[u'name'],
+            'price': result[u'price'],
+            'sku': result[u'sku'],
+            'id': result[u'id']
+        }
+
+        path = os.path.join(os.path.dirname(__file__), 'item_created.html')
+        self.response.out.write(template.render(path, template_values))
 
 
 class CreateOrder(webapp2.RequestHandler):
@@ -196,7 +238,10 @@ class CreateOrder(webapp2.RequestHandler):
             "total": form_data["total"][0],
             "client_id": client_id,
             "client_secret": CLIENT_SECRET,
-            "code": global_code
+            "code": global_code,
+            "device": {
+                "id": "2f3ed019-4ebe-1521-e029-49e157c62e7f"
+            }
         })
 
         result = urlfetch.fetch(
@@ -216,7 +261,6 @@ class CreateOrder(webapp2.RequestHandler):
         path = os.path.join(os.path.dirname(__file__), 'order_created.html')
         self.response.out.write(template.render(path, template_values))
 
-
 # ROUTES
 routes = [
     Route (r'/', handler = MainPage),
@@ -226,7 +270,9 @@ routes = [
     Route (r'/users/create', handler = CreateUser),
     Route (r'/orders/new', handler = NewOrderForm),
     Route (r'/orders/create', handler = CreateOrder),
-    Route (r'/orders/remove', handler = RemoveOrderForm)
+    Route (r'/orders/remove', handler = RemoveOrderForm),
+    Route (r'/inventory/new', handler = NewInventoryForm),
+    Route (r'/inventory/create', handler = CreateInventoryItem)
 ]
 
 app = webapp2.WSGIApplication(routes, debug=True)
