@@ -99,7 +99,7 @@ class MainPage(webapp2.RequestHandler):
                                                                                   }))
         else:
             # No code yet, redirect to Clover OAuth so we can get one
-            self.redirect('https://sandbox.dev.clover.com/oauth/authorize')
+            self.redirect('https://sandbox.dev.clover.com/oauth/merchants/SJ925JDCKKTJJ?client_id=4WRDFC82ZJ4S6')
 
 class Guestbook(webapp2.RequestHandler):
     def post(self):
