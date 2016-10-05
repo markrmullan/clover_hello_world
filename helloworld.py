@@ -73,7 +73,7 @@ class MainPage(webapp2.RequestHandler):
             rest_api_json = json.loads(result.content)
 
             #retrieve merchant address
-            url = rest_api_json[u'address']['href']
+            url = "https://sandbox.dev.clover.com/v3/merchants/" + merchant_id + '/address'
             headers = {"Authorization": "Bearer " + access_token_str}
             result = urlfetch.fetch(
                 url = url,
