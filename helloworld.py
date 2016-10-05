@@ -173,7 +173,6 @@ class CreateUser(webapp2.RequestHandler):
         # and store in db.
 
         print "Creating user in db, loading..."
-        # time.sleep(2)
         self.redirect("http://localhost:8080/inventory/new")
 
 class RemoveOrder(webapp2.RequestHandler):
@@ -265,9 +264,6 @@ class CreateOrder(webapp2.RequestHandler):
             "client_id": client_id,
             "client_secret": CLIENT_SECRET,
             "code": global_code,
-            # "device": {
-            #     "id": "2f3ed019-4ebe-1521-e029-49e157c62e7f"
-            # },
             "state": "open"
         })
 
