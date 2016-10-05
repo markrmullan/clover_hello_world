@@ -26,7 +26,6 @@ client_id = None
 merchant_id = None
 # merchant_id = 'SJ925JDCKKTJJ'
 # app_id = '4WRDFC82ZJ4S6' also aliased as client_id that is a query param to
-# API TOKEN 3a440b6b-a76f-bdb3-f999-2a3d2c1a63ee
 # https://www.clover.com/oauth/authorize
 
 class Greeting(db.Model):
