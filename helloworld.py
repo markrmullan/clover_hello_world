@@ -25,7 +25,6 @@ global_code = None
 client_id = None
 merchant_id = None
 
-
 class Greeting(db.Model):
     # Models an individual Guestbook entry with an author, content and date.
     author = db.UserProperty()
