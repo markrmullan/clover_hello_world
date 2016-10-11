@@ -31,6 +31,12 @@ class Greeting(db.Model):
     content = db.StringProperty(multiline=True)
     date = db.DateTimeProperty(auto_now_add=True)
 
+class Order(db.Model):
+    # Models an Order -- set up Webhooks to create these Orders when a Clover order is created
+    total = db.IntegerProperty()
+    note = db.StringProperty(multiline = False)
+    state = db.StringProperty(multiline = False)
+
 def guestbook_key(guestbook_name=None):
     # Constructs a datastore key for a Guestbook entity with guestbook_name
     return db.Key.from_path('Guestbook', guestbook_name or 'default_guestbook')
