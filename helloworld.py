@@ -20,8 +20,7 @@ from google.appengine.api import urlfetch
 
 from secret_settings import *
 
-access_token_str = None
-global_code = None
+access_token = None
 client_id = None
 merchant_id = None
 
@@ -49,60 +48,54 @@ class Home(webapp2.RequestHandler):
 class MainPage(webapp2.RequestHandler):
     def get(self):
         code = self.request.get('code')
+        client_id = self.request.get('client_id')
+        merchant_id = self.request.get('merchant_id')
+
         if code:
+            # if there's a code query param, use it to get an access_token by making a request to...
             global client_id
             global merchant_id
-            global access_token_str
-            client_id = self.request.get('client_id')
-            merchant_id = self.request.get('merchant_id')
-            global_code = code
+            global access_token
 
+            # https://sandbox.dev.clover.com/oauth/token?client_id=%%%&client_secret=%%%&code=code
             url = "https://sandbox.dev.clover.com/oauth/token?client_id=" + client_id + "&client_secret=" + CLIENT_SECRET + "&code=" + code
             try:
                 result = urlfetch.fetch(url)
                 if result.status_code == 200:
-                    access_token_str = str(json.loads(result.content)[u'access_token'])
+                    # parse access_token from the response body.
+                    access_token = str(json.loads(result.content)[u'access_token'])
                 else:
                     self.response.status_code = result.status_code
             except:
                 logging.exception('Caught exception fetching url')
 
-            #retrieve merchant master info
-            url = "https://sandbox.dev.clover.com/v3/merchants/" + merchant_id
-            headers = {"Authorization": "Bearer " + access_token_str}
-            result = urlfetch.fetch(
-                url = url,
-                headers = headers)
-            rest_api_json = json.loads(result.content)
+            # now use this access token to access the REST API and retrieve
+            # merchant information we would be interested in
 
-            #retrieve merchant address
-            url = "https://sandbox.dev.clover.com/v3/merchants/" + merchant_id + '/address'
-            headers = {"Authorization": "Bearer " + access_token_str}
-            result = urlfetch.fetch(
-                url = url,
-                headers = headers)
-            address = result.content
+            # example REST API call:
 
-            #retrieve merchant email
-            url = rest_api_json[u'owner']['href']
-            headers = {"Authorization": "Bearer " + access_token_str}
+            # retrieve merchant address and email, both might be useful for
+            # pre-populating our Sign Up form, providing the merchant with
+            # a positive signup experience.
+            url = "https://sandbox.dev.clover.com/v3/merchants/" + merchant_id + '?expand=owner,address'
+            headers = {"Authorization": "Bearer " + access_token}
             result = urlfetch.fetch(
                 url = url,
                 headers = headers
             )
-            email = result.content
 
-            #############################################################
-            ##### OBJECT TO USE FOR AUTOCOMPLETING SIGNUP FORM, ETC #####
-            #############################################################
-            self.redirect('http://localhost:8080/users/new?' + urllib.urlencode({'data': {
-                                                                                          'address': address,
-                                                                                          'email': email
-                                                                                          }
-                                                                                  }))
+            # parse the email and address from the Clover response
+            email = str(json.loads(result.content)[u'owner'][u'email'])
+            address = str(json.loads(result.content)[u'address'])
+
+            # base64 encode the email and address
+            query = urllib.urlencode({'data': { 'address': address, 'email': email }})
+
+            # then pass that object as a query param to the Sign Up form.
+            self.redirect('http://localhost:8080/users/new?' + query)
         else:
-            # No code yet, redirect to Clover OAuth so we can get one
-            self.redirect('https://sandbox.dev.clover.com/oauth/merchants/SJ925JDCKKTJJ?client_id=4WRDFC82ZJ4S6')
+            # No code yet, redirect to begin Clover OAuth.
+            self.redirect('https://sandbox.dev.clover.com/oauth/merchants/' + merchant_id + '?client_id=4WRDFC82ZJ4S6')
 
 class Guestbook(webapp2.RequestHandler):
     def post(self):
@@ -147,10 +140,10 @@ class NewUserForm(webapp2.RequestHandler):
         if len(data) > 0:
             data = eval(data)
             address = eval(data['address'])
-            email = eval(data['email'])
+            email = str(data['email'])
 
             template_values = {
-                "email": email.get("email"),
+                "email": email,
                 "address1": address.get('address1'),
                 "address2": address.get("address2"),
                 "city": address.get("city"),
@@ -184,11 +177,11 @@ class RemoveOrder(webapp2.RequestHandler):
 
     def post(self):
         global merchant_id
-        global access_token_str
+        global access_token
 
         order_id = urlparse.parse_qs(self.request.body)['id'][0]
         url = "https://sandbox.dev.clover.com/v3/merchants/" + merchant_id + "/orders/" + order_id
-        headers = {"Authorization": "Bearer " + access_token_str, 'Content-Type': 'application/json'}
+        headers = {"Authorization": "Bearer " + access_token, 'Content-Type': 'application/json'}
 
         try:
             result = urlfetch.fetch(
@@ -215,12 +208,11 @@ class CreateInventoryItem(webapp2.RequestHandler):
     def post(self):
         global merchant_id
         global client_id
-        global access_token_str
-        global global_code
+        global access_token
         form_data = urlparse.parse_qs(self.request.body)
 
         url = "https://sandbox.dev.clover.com/v3/merchants/" + merchant_id + "/items"
-        headers = {"Authorization": "Bearer " + access_token_str, 'Content-Type': 'application/json'}
+        headers = {"Authorization": "Bearer " + access_token, 'Content-Type': 'application/json'}
 
         post_data = json.dumps({
             "name": form_data["name"][0],
@@ -228,7 +220,6 @@ class CreateInventoryItem(webapp2.RequestHandler):
             "sku": form_data["sku"][0],
             "client_id": client_id,
             "client_secret": CLIENT_SECRET,
-            "code": global_code
         })
 
         result = urlfetch.fetch(
@@ -253,19 +244,17 @@ class CreateOrder(webapp2.RequestHandler):
     def post(self):
         global merchant_id
         global client_id
-        global access_token_str
-        global global_code
+        global access_token
         form_data = urlparse.parse_qs(self.request.body)
 
         url = "https://sandbox.dev.clover.com/v3/merchants/" + merchant_id + "/orders"
-        headers = {"Authorization": "Bearer " + access_token_str, 'Content-Type': 'application/json'}
+        headers = {"Authorization": "Bearer " + access_token, 'Content-Type': 'application/json'}
 
         post_data = json.dumps({
             "note": form_data["note"][0],
             "total": form_data["total"][0],
             "client_id": client_id,
             "client_secret": CLIENT_SECRET,
-            "code": global_code,
             "state": "open"
         })
 
