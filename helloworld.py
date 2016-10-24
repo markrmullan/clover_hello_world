@@ -95,7 +95,8 @@ class MainPage(webapp2.RequestHandler):
             self.redirect('http://localhost:8080/users/new?' + query)
         else:
             # No code yet, redirect to begin Clover OAuth.
-            self.redirect('https://www.clover.com/oauth/authorize')
+            # In production, change to https://www.clover.com/oauth/authorize
+            self.redirect('https://sandbox.dev.clover.com/oauth/authorize')
 
 class Guestbook(webapp2.RequestHandler):
     def post(self):
