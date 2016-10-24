@@ -47,14 +47,14 @@ class Home(webapp2.RequestHandler):
 
 class MainPage(webapp2.RequestHandler):
     def get(self):
+        global client_id
+        global merchant_id
         code = self.request.get('code')
         client_id = self.request.get('client_id')
         merchant_id = self.request.get('merchant_id')
 
         if code:
             # if there's a code query param, use it to get an access_token by making a request to...
-            global client_id
-            global merchant_id
             global access_token
 
             # https://sandbox.dev.clover.com/oauth/token?client_id=%%%&client_secret=%%%&code=code
