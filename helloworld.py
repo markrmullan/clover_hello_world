@@ -74,9 +74,9 @@ class MainPage(webapp2.RequestHandler):
 
             # example REST API call:
 
-            # retrieve merchant address and email, both might be useful for
-            # pre-populating our Sign Up form, providing the merchant with
-            # a positive signup experience.
+            # In this example, I'll retrieve merchant address and email.
+            # Both might be useful for pre-populating my Sign Up form,
+            # providing the merchant with a positive signup experience.
             url = "https://sandbox.dev.clover.com/v3/merchants/" + merchant_id + '?expand=owner,address'
             headers = {"Authorization": "Bearer " + access_token}
             result = urlfetch.fetch(
@@ -84,6 +84,7 @@ class MainPage(webapp2.RequestHandler):
                 headers = headers
             )
 
+            # the response from the Clover server is a JSON String.
             # parse the email and address from the Clover response
             email = str(json.loads(result.content)[u'owner'][u'email'])
             address = str(json.loads(result.content)[u'address'])
