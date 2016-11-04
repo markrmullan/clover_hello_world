@@ -2,26 +2,18 @@
 # https://docs.clover.com/build/developer-pay-api/
 import os
 
-# from google.appengine.api import apiproxy_stub_map
-# from google.appengine.api import urlfetch_stub
-#
-# apiproxy_stub_map.apiproxy = apiproxy_stub_map.APIProxyStubMap()
-# apiproxy_stub_map.apiproxy.RegisterStub('urlfetch', urlfetch_stub.URLFetchServiceStub())
-
-# from google.appengine.api import urlfetch
 from Crypto.PublicKey import RSA
 from base64 import b64encode
 import requests
 
-# CC info
-cardNumber = '4761739001010010'
-expMonth = 12
-expYear = 2018
-CVV = 5444444
+from webpay_secrets import *
+
+merchantID = "SJ925JDCKKTJJ"
+orderID = "7NZKPSWGKJ034"
 
 # Getting secrets to encrypt cc info
-url = 'https://sandbox.dev.clover.com/v2/merchant/SJ925JDCKKTJJ/pay/key'
-headers = {"Authorization": "Bearer 3a440b6b-a76f-bdb3-f999-2a3d2c1a63ee"}
+url = 'https://sandbox.dev.clover.com/v2/merchant/' + merchantID + '/pay/key'
+headers = {"Authorization": "Bearer " + API_TOKEN}
 response = requests.get(url, headers = headers).json()
 
 print response
@@ -39,7 +31,7 @@ cardEncrypted = b64encode(encrypted[0])
 # YYBQTK5SVXQ2P
 
 post_data = {
-    "orderId": "7NZKPSWGKJ034",
+    "orderId": orderID,
     "currency": "usd",
     "amount": 5,
     # "token":"8Z1C6RPH2A2CM",
@@ -52,14 +44,11 @@ post_data = {
     "first6": cardNumber[0:6]
 }
 
-posturl = 'https://sandbox.dev.clover.com/v2/merchant/SJ925JDCKKTJJ/pay'
+posturl = 'https://sandbox.dev.clover.com/v2/merchant/' + merchantID + '/pay'
 postresponse = requests.post(
     posturl,
     headers = headers,
-    # method='POST',
     data= post_data
     ).json()
-
-
 
 print postresponse
