@@ -1,10 +1,8 @@
 # https://docs.clover.com/faq/how-do-i-use-the-web-api-to-pay-for-an-order/
 # https://docs.clover.com/build/developer-pay-api/
-import os
-
+import requests
 from Crypto.PublicKey import RSA
 from base64 import b64encode
-import requests
 
 from webpay_secrets import *
 
@@ -16,7 +14,7 @@ url = 'https://sandbox.dev.clover.com/v2/merchant/' + merchantID + '/pay/key'
 headers = {"Authorization": "Bearer " + API_TOKEN}
 response = requests.get(url, headers = headers).json()
 
-print response
+# print response
 
 modulus = long(response['modulus'])
 exponent = long(response['exponent'])
@@ -29,7 +27,6 @@ encrypted = publickey.encrypt(cardNumber, prefix)
 cardEncrypted = b64encode(encrypted[0])
 
 # YYBQTK5SVXQ2P
-
 post_data = {
     "orderId": orderID,
     "currency": "usd",
