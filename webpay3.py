@@ -3,18 +3,20 @@
 import requests
 from Crypto.PublicKey import RSA
 from base64 import b64encode
-
-from webpay_secrets import *
+import json
 
 merchantID = "SJ925JDCKKTJJ"
 orderID = "7NZKPSWGKJ034"
+API_TOKEN = "3a440b6b-a76f-bdb3-f999-2a3d2c1a63ee"
+cardNumber = '4761739001010010'
+expMonth = 12
+expYear = 2018
+CVV = "123"
 
 # Getting secrets to encrypt cc info
 url = 'https://sandbox.dev.clover.com/v2/merchant/' + merchantID + '/pay/key'
 headers = {"Authorization": "Bearer " + API_TOKEN}
 response = requests.get(url, headers = headers).json()
-
-# print response
 
 modulus = long(response['modulus'])
 exponent = long(response['exponent'])
@@ -31,8 +33,6 @@ post_data = {
     "orderId": orderID,
     "currency": "usd",
     "amount": 5,
-    # "token":"8Z1C6RPH2A2CM",
-    # "authCode":"561740",
     "expMonth": expMonth,
     "cvv": CVV,
     "expYear": expYear,
@@ -48,4 +48,4 @@ postresponse = requests.post(
     data= post_data
     ).json()
 
-print postresponse
+print json.dumps(postresponse)
