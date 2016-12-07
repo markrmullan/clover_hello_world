@@ -9,7 +9,7 @@ import json
 # merchantID = "SJ925JDCKKTJJ"
 target_env = "https://api.clover.com/v2/merchant/" # or https://sandbox.dev.clover.com/v2/merchant/
 merchantID = "Q9WPB0CY15SP2"
-orderID = "7NZKPSWGKJ034"
+# orderID = "7NZKPSWGKJ034"
 orderID = "PNQXBTEJKYSFJ"
 # API_TOKEN = "7d7a73fb-9de4-f891-2251-7124cbf07df3"
 API_TOKEN = "371c3db2-0547-7abc-793b-2d138584ad14"
@@ -37,7 +37,6 @@ publickey = RSAkey.publickey()
 encrypted = publickey.encrypt(cardNumber, prefix)
 cardEncrypted = b64encode(encrypted[0])
 
-# YYBQTK5SVXQ2P
 post_data = {
     "orderId": orderID,
     "currency": "usd",
