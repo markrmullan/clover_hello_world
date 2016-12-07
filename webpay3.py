@@ -25,7 +25,7 @@ url = target_env + merchantID + '/pay/key'
 headers = {"Authorization": "Bearer " + API_TOKEN}
 response = requests.get(url, headers = headers).json()
 
-print response
+# print response
 
 modulus = long(response['modulus'])
 exponent = long(response['exponent'])
