@@ -5,18 +5,27 @@ from Crypto.PublicKey import RSA
 from base64 import b64encode
 import json
 
-merchantID = "SJ925JDCKKTJJ"
+########## BEGIN SCRIPT CONFIG SETUP ##########
+# merchantID = "SJ925JDCKKTJJ"
+target_env = "https://api.clover.com/v2/merchant/" # or https://sandbox.dev.clover.com/v2/merchant/
+merchantID = "Q9WPB0CY15SP2"
 orderID = "7NZKPSWGKJ034"
-API_TOKEN = "3a440b6b-a76f-bdb3-f999-2a3d2c1a63ee"
+orderID = "PNQXBTEJKYSFJ"
+# API_TOKEN = "7d7a73fb-9de4-f891-2251-7124cbf07df3"
+API_TOKEN = "371c3db2-0547-7abc-793b-2d138584ad14"
 cardNumber = '4761739001010010'
 expMonth = 12
 expYear = 2018
-CVV = "123"
+CVV = None
+
+########## END SCRIPT CONFIG SETUP ##########
 
 # Getting secrets to encrypt cc info
-url = 'https://sandbox.dev.clover.com/v2/merchant/' + merchantID + '/pay/key'
+url = target_env + merchantID + '/pay/key'
 headers = {"Authorization": "Bearer " + API_TOKEN}
 response = requests.get(url, headers = headers).json()
+
+print response
 
 modulus = long(response['modulus'])
 exponent = long(response['exponent'])
@@ -41,7 +50,7 @@ post_data = {
     "first6": cardNumber[0:6]
 }
 
-posturl = 'https://sandbox.dev.clover.com/v2/merchant/' + merchantID + '/pay'
+posturl = target_env + merchantID + '/pay'
 postresponse = requests.post(
     posturl,
     headers = headers,
