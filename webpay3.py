@@ -6,13 +6,13 @@ from base64 import b64encode
 import json
 
 ########## BEGIN SCRIPT CONFIG SETUP ##########
-# merchantID = "SJ925JDCKKTJJ"
-target_env = "https://api.clover.com/v2/merchant/" # or https://sandbox.dev.clover.com/v2/merchant/
-merchantID = "Q9WPB0CY15SP2"
-# orderID = "7NZKPSWGKJ034"
-orderID = "PNQXBTEJKYSFJ"
-# API_TOKEN = "7d7a73fb-9de4-f891-2251-7124cbf07df3"
-API_TOKEN = "371c3db2-0547-7abc-793b-2d138584ad14"
+merchantID = "SJ925JDCKKTJJ"
+target_env = "https://sandbox.dev.clover.com/v2/merchant/" # or https://sandbox.dev.clover.com/v2/merchant/
+# merchantID = "Q9WPB0CY15SP2"
+orderID = "7NZKPSWGKJ034"
+# orderID = "PNQXBTEJKYSFJ"
+API_TOKEN = "7d7a73fb-9de4-f891-2251-7124cbf07df3"
+# API_TOKEN = "371c3db2-0547-7abc-793b-2d138584ad14"
 cardNumber = '4761739001010010'
 expMonth = 12
 expYear = 2018
