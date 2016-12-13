@@ -24,22 +24,6 @@ access_token = None
 client_id = None
 merchant_id = None
 
-class Greeting(db.Model):
-    # Models an individual Guestbook entry with an author, content and date.
-    author = db.UserProperty()
-    content = db.StringProperty(multiline=True)
-    date = db.DateTimeProperty(auto_now_add=True)
-
-class Order(db.Model):
-    # Models an Order -- set up Webhooks to create these Orders when a Clover order is created
-    total = db.IntegerProperty()
-    note = db.StringProperty(multiline = False)
-    state = db.StringProperty(multiline = False)
-
-def guestbook_key(guestbook_name=None):
-    # Constructs a datastore key for a Guestbook entity with guestbook_name
-    return db.Key.from_path('Guestbook', guestbook_name or 'default_guestbook')
-
 class Home(webapp2.RequestHandler):
     def get(self):
         path = os.path.join(os.path.dirname(__file__), 'home.html')
@@ -49,15 +33,16 @@ class MainPage(webapp2.RequestHandler):
     def get(self):
         global client_id
         global merchant_id
+        # retrieve query params from URL
         code = self.request.get('code')
         client_id = self.request.get('client_id')
         merchant_id = self.request.get('merchant_id')
 
         if code:
             # if there's a code query param, use it to get an access_token by making a request to...
+            # https://sandbox.dev.clover.com/oauth/token?client_id=%%%&client_secret=%%%&code=code
             global access_token
 
-            # https://sandbox.dev.clover.com/oauth/token?client_id=%%%&client_secret=%%%&code=code
             url = "https://sandbox.dev.clover.com/oauth/token?client_id=" + client_id + "&client_secret=" + CLIENT_SECRET + "&code=" + code
             try:
                 result = urlfetch.fetch(url)
@@ -95,7 +80,7 @@ class MainPage(webapp2.RequestHandler):
             # then pass that object as a query param to the Sign Up form.
             self.redirect('http://localhost:8080/users/new?' + query)
         else:
-            # No code yet, redirect to begin Clover OAuth.
+            # If there's no 'code' query param, redirect to begin Clover OAuth.
             # In production, change to https://www.clover.com/oauth/authorize
             self.redirect('https://sandbox.dev.clover.com/oauth/authorize')
 
@@ -133,6 +118,12 @@ class GuestbookIndex(webapp2.RequestHandler):
 
         path = os.path.join(os.path.dirname(__file__), 'index.html')
         self.response.out.write(template.render(path, template_values))
+
+class Order(db.Model):
+    # Models an Order -- set up Webhooks to create these Orders when a Clover order is created
+    total = db.IntegerProperty()
+    note = db.StringProperty(multiline = False)
+    state = db.StringProperty(multiline = False)
 
 class NewUserForm(webapp2.RequestHandler):
     def get(self):
