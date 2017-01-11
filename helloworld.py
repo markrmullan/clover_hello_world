@@ -23,6 +23,9 @@ from secret_settings import *
 access_token = None
 client_id = None
 merchant_id = None
+global client_id
+global merchant_id
+global access_token
 
 class Home(webapp2.RequestHandler):
     def get(self):
@@ -31,17 +34,25 @@ class Home(webapp2.RequestHandler):
 
 class MainPage(webapp2.RequestHandler):
     def get(self):
-        global client_id
-        global merchant_id
-        # retrieve query params from URL
-        code = self.request.get('code')
-        client_id = self.request.get('client_id')
-        merchant_id = self.request.get('merchant_id')
+        source = self.request.get('source')
+        if source == "clover":
+            # retrieve query params from URL
+            code = self.request.get('code')
+            client_id = self.request.get('client_id')
+            merchant_id = self.request.get('merchant_id')
+            state = self.request.get('state')
+            print state
+            print state
+            print state
+            print state
+            print state
+            print state
+            print state
+            print state
 
-        if code:
-            # if there's a code query param, use it to get an access_token by making a request to...
+            # if the client comes from Clover, parse the 'code' query param
+            # and use it to get an access_token by making a request to...
             # https://sandbox.dev.clover.com/oauth/token?client_id=%%%&client_secret=%%%&code=code
-            global access_token
 
             url = "https://sandbox.dev.clover.com/oauth/token?client_id=" + client_id + "&client_secret=" + CLIENT_SECRET + "&code=" + code
             try:
@@ -82,7 +93,7 @@ class MainPage(webapp2.RequestHandler):
         else:
             # If there's no 'code' query param, redirect to begin Clover OAuth.
             # In production, change to https://www.clover.com/oauth/authorize
-            self.redirect('https://sandbox.dev.clover.com/oauth/authorize')
+            self.redirect('https://sandbox.dev.clover.com/oauth/authorize/?client_id=4WRDFC82ZJ4S6&state=asdf+asdf')
 
 class Guestbook(webapp2.RequestHandler):
     def post(self):
