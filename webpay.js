@@ -1,82 +1,92 @@
-// https://docs.clover.com/faq/how-do-i-use-the-web-api-to-pay-for-an-order/
-// https://docs.clover.com/build/developer-pay-api/
 const http = require('http');
-const NodeRSA = require('node-rsa');
 
-////////// BEGIN SCRIPT CONFIG SETUP //////////
-// merchantID = "SJ925JDCKKTJJ"
-const target_env = "api.clover.com"; // or https://sandbox.dev.clover.com/
-const path = "/v2/merchant/";
-const merchantID = "Q9WPB0CY15SP2";
-// orderID = "7NZKPSWGKJ034";
-const orderID = "PNQXBTEJKYSFJ";
-// API_TOKEN = "7d7a73fb-9de4-f891-2251-7124cbf07df3";
-const API_TOKEN = "371c3db2-0547-7abc-793b-2d138584ad14";
+const request = http.request();
+
+///////////////////////////////////////////////////////////////////
+//////////////////// BEGIN SCRIPT CONFIG SETUP ////////////////////
+///////////////////////////////////////////////////////////////////
+
+const merchantID = "CNKMYYVYGJHXJ"; // sandbox Test Merchant
+const target_env = "https://sandbox.dev.clover.com/v2/merchant/";
+const orderID = "8GCADRD79S1DW";
+const API_TOKEN = "1decda79-717f-8ad5-a3d4-f4f6bb0d7ee0";
+const amount = 1000;
+const tipAmount = 0;
+const taxAmount = 0;
 const cardNumber = '4761739001010010';
 const expMonth = 12;
 const expYear = 2018;
 const CVV = null;
 
-////////// END SCRIPT CONFIG SETUP //////////
+/////////////////////////////////////////////////////////////////////
+//////////////////// END SCRIPT CONFIG SETUP ////////////////////////
+/////////////////////////////////////////////////////////////////////
 
-// Getting secrets to encrypt cc info
-const url = target_env + merchantID + '/pay/key';
-const headers = {"Authorization": "Bearer " + API_TOKEN};
-// const response = requests.get(url, headers = headers).json()
+// GET to /v2/merchant/{mId}/pay/key To get the encryption information needed for the pay endpoint.
+let url = target_env + merchantID + '/pay/key'
 
-const options = {
-  host: target_env,
-  path: path,
-  method: 'GET',
-  headers: headers
-}
+let options = {
+  hostname: 'sandbox.dev.clover.com',
+  path: '/v2/merchant/' + merchantID,
+  headers: {
+    "Authorization": "Bearer " + API_TOKEN
+  },
+  method: "GET"
+};
 
-try {
-  // http.get(options, callback);
-  http.request(options, callback);
-} catch (err) {
-  console.log(err.message);
-}
+let req = http.request(options, (res) => {
+  console.log(res);
+  res.on('data', (chunk) => {
+    console.log(chunk);
+  });
+  res.on('end', () => {
+    console.log("no more data in the response");
+  })
+});
 
-function callback(response) {
-  // const modulus = long(response['modulus']);
-  const modulus = response.modulus;
-  const exponent = response.exponent;
-  const prefix = response.prefix;
-  // const exponent = long(response['exponent']);
-  // const prefix = long(response['prefix']);
+req.on('error', (e) => {
+  console.log(e.message);
+});
 
-  // console.log(response);
-
-  // const RSAkey = RSA.construct((modulus, exponent));
-  const RSAkey = new NodeRSA({modulus: exponent});
-  console.log(RSAkey);
-
-  const publickey = RSAkey.publickey;
-  const encrypted = publickey.encrypt(cardNumber, prefix);
-  const cardEncrypted = b64encode(encrypted[0]);
-
-  const post_data = {
-      "orderId": orderID,
-      "currency": "usd",
-      "amount": 5,
-      "expMonth": expMonth,
-      "cvv": CVV,
-      "expYear": expYear,
-      "cardEncrypted": cardEncrypted,
-      "last4": cardNumber.slice(-4, -1),
-      "first6": cardNumber.slice(0, 6)
-  };
-
-  console.log(post_data.last4);
-  console.log(post_data.first6);
-
-  const posturl = target_env + merchantID + '/pay';
-  const postresponse = requests.post(
-      posturl,
-      headers = headers,
-      data= post_data
-      ).json()
-
-  console.log(postresponse.toJson());
-}
+req.end();
+//
+//
+// let
+// let response = requests.get(url, headers = headers).json()
+//
+// modulus = long(response['modulus'])
+// exponent = long(response['exponent'])
+// prefix = str(response['prefix'])
+//
+// // construct an RSA public key using the modulus and exponent provided by GET /v2/merchant/{mId}/pay/key
+// key = RSA.construct((modulus, exponent))
+//
+// // create a cipher from the RSA key and use it to encrypt the card number, prepended with the prefix from GET /v2/merchant/{mId}/pay/key
+// cipher = PKCS1_OAEP.new(key)
+// encrypted = cipher.encrypt(prefix + cardNumber)
+//
+// // Base64 encode the resulting encrypted data into a string to use as the cardEncrypted' property.
+// cardEncrypted = b64encode(encrypted)
+//
+// post_data = {
+//     "orderId": orderID,
+//     "currency": "usd",
+//     "amount": amount,
+//     "tipAmount": tipAmount,
+//     "taxAmount": taxAmount,
+//     "expMonth": expMonth,
+//     "cvv": CVV,
+//     "expYear": expYear,
+//     "cardEncrypted": cardEncrypted,
+//     "last4": cardNumber[-4:],
+//     "first6": cardNumber[0:6]
+// }
+//
+// posturl = target_env + merchantID + '/pay'
+// postresponse = requests.post(
+//     posturl,
+//     headers = headers,
+//     data= post_data
+//     ).json()
+//
+// print json.dumps(postresponse

@@ -36,7 +36,7 @@ class MainPage(webapp2.RequestHandler):
     def get(self):
         source = self.request.get('source')
         if source == "clover":
-            # retrieve query params from URL
+            // retrieve query params from URL
             code = self.request.get('code')
             client_id = self.request.get('client_id')
             merchant_id = self.request.get('merchant_id')
@@ -50,29 +50,29 @@ class MainPage(webapp2.RequestHandler):
             print state
             print state
 
-            # if the client comes from Clover, parse the 'code' query param
-            # and use it to get an access_token by making a request to...
-            # https://sandbox.dev.clover.com/oauth/token?client_id=%%%&client_secret=%%%&code=code
+            // if the client comes from Clover, parse the 'code' query param
+            // and use it to get an access_token by making a request to...
+            // https://sandbox.dev.clover.com/oauth/token?client_id=%%%&client_secret=%%%&code=code
 
             url = "https://sandbox.dev.clover.com/oauth/token?client_id=" + client_id + "&client_secret=" + CLIENT_SECRET + "&code=" + code
             try:
                 result = urlfetch.fetch(url)
                 if result.status_code == 200:
-                    # parse access_token from the response body.
+                    // parse access_token from the response body.
                     access_token = str(json.loads(result.content)[u'access_token'])
                 else:
                     self.response.status_code = result.status_code
             except:
                 logging.exception('Caught exception fetching url')
 
-            # now use this access token to access the REST API and retrieve
-            # merchant information we would be interested in
+            // now use this access token to access the REST API and retrieve
+            // merchant information we would be interested in
 
-            # example REST API call:
+            // example REST API call:
 
-            # In this example, I'll retrieve merchant address and email.
-            # Both might be useful for pre-populating my Sign Up form,
-            # providing the merchant with a positive signup experience.
+            // In this example, I'll retrieve merchant address and email.
+            // Both might be useful for pre-populating my Sign Up form,
+            // providing the merchant with a positive signup experience.
             url = "https://sandbox.dev.clover.com/v3/merchants/" + merchant_id + '?expand=owner,address'
             headers = {"Authorization": "Bearer " + access_token}
             result = urlfetch.fetch(
@@ -80,19 +80,19 @@ class MainPage(webapp2.RequestHandler):
                 headers = headers
             )
 
-            # the response from the Clover server is a JSON String.
-            # parse the email and address from the Clover response
+            // the response from the Clover server is a JSON String.
+            // parse the email and address from the Clover response
             email = str(json.loads(result.content)[u'owner'][u'email'])
             address = str(json.loads(result.content)[u'address'])
 
-            # base64 encode the email and address
+            // base64 encode the email and address
             query = urllib.urlencode({'data': { 'address': address, 'email': email }})
 
-            # then pass that object as a query param to the Sign Up form.
+            // then pass that object as a query param to the Sign Up form.
             self.redirect('http://localhost:8080/users/new?' + query)
         else:
-            # If there's no 'code' query param, redirect to begin Clover OAuth.
-            # In production, change to https://www.clover.com/oauth/authorize
+            // If there's no 'code' query param, redirect to begin Clover OAuth.
+            // In production, change to https://www.clover.com/oauth/authorize
             self.redirect('https://sandbox.dev.clover.com/oauth/authorize/?client_id=4WRDFC82ZJ4S6&state=asdf+asdf')
 
 class Guestbook(webapp2.RequestHandler):
@@ -131,7 +131,7 @@ class GuestbookIndex(webapp2.RequestHandler):
         self.response.out.write(template.render(path, template_values))
 
 class Order(db.Model):
-    # Models an Order -- set up Webhooks to create these Orders when a Clover order is created
+    // Models an Order -- set up Webhooks to create these Orders when a Clover order is created
     total = db.IntegerProperty()
     note = db.StringProperty(multiline = False)
     state = db.StringProperty(multiline = False)
@@ -139,8 +139,8 @@ class Order(db.Model):
 class NewUserForm(webapp2.RequestHandler):
     def get(self):
         data = self.request.get('data').replace('false', "False").replace('true', "True")
-        # clover server responds back with 'true' or 'false' strings
-        # python will throw an error for uncapitalized booleans, so we convert
+        // clover server responds back with 'true' or 'false' strings
+        // python will throw an error for uncapitalized booleans, so we convert
         if len(data) > 0:
             data = eval(data)
             address = eval(data['address'])
@@ -159,7 +159,7 @@ class NewUserForm(webapp2.RequestHandler):
             self.response.out.write(template.render(path, template_values))
         else:
             print "something went wrong!"
-            # TODO: error handling here
+            // TODO: error handling here
 
 class NewOrderForm(webapp2.RequestHandler):
     def get(self):
@@ -168,8 +168,8 @@ class NewOrderForm(webapp2.RequestHandler):
 
 class CreateUser(webapp2.RequestHandler):
     def post(self):
-        # simulate loading screen, in live app, would actually create a User
-        # and store in db.
+        // simulate loading screen, in live app, would actually create a User
+        // and store in db.
 
         print "Creating user in db, loading..."
         self.redirect("http://localhost:8080/inventory/new")
@@ -279,7 +279,7 @@ class CreateOrder(webapp2.RequestHandler):
         path = os.path.join(os.path.dirname(__file__), 'order_created.html')
         self.response.out.write(template.render(path, template_values))
 
-# ROUTES
+// ROUTES
 routes = [
     Route (r'/', handler = MainPage),
     Route (r'/sign', handler = Guestbook),

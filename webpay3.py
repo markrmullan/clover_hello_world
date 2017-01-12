@@ -12,7 +12,7 @@ import json
 merchantID = "CNKMYYVYGJHXJ" # sandbox Test Merchant
 target_env = "https://sandbox.dev.clover.com/v2/merchant/"
 orderID = "8GCADRD79S1DW"
-API_TOKEN = "1decda79-717f-8ad5-a3d4-f4f6bb0d7ee0"
+API_Token = "1decda79-717f-8ad5-a3d4-f4f6bb0d7ee0"
 amount = 1000
 tipAmount = 0
 taxAmount = 0
@@ -25,9 +25,9 @@ CVV = None
 ########## END SCRIPT CONFIG SETUP ############
 ###############################################
 
-# GET to /v2/merchant/{mId}/pay/key To get the encryption information you’ll need for the pay endpoint.
+# GET to /v2/merchant/{mId}/pay/key To get the encryption information needed for the pay endpoint.
 url = target_env + merchantID + '/pay/key'
-headers = {"Authorization": "Bearer " + API_TOKEN}
+headers = {"Authorization": "Bearer " + API_Token}
 response = requests.get(url, headers = headers).json()
 
 modulus = long(response['modulus'])
@@ -41,9 +41,10 @@ key = RSA.construct((modulus, exponent))
 cipher = PKCS1_OAEP.new(key)
 encrypted = cipher.encrypt(prefix + cardNumber)
 
-# Base64 encode the resulting encrypted data into a string which you will send to Clover in the “cardEncrypted” field.
+# Base64 encode the resulting encrypted data into a string to Clover as the 'cardEncrypted' property.
 cardEncrypted = b64encode(encrypted)
 
+# POST to /v2/merchant/{mId}/pay
 post_data = {
     "orderId": orderID,
     "currency": "usd",
